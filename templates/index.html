@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeetMind – AI Meeting Assistant by Shantanu</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#0d1117;--paper:#f7f5f0;--cream:#ede9e0;--accent:#c8a96e;--accent2:#2d6a4f;
+    --muted:#6b7280;--white:#fff;--border:#e2ddd6;
+    --shadow:0 4px 24px rgba(13,17,23,0.08);--shadow-lg:0 16px 48px rgba(13,17,23,0.12);
+    --danger:#dc2626;--success:#16a34a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;overflow-x:hidden}
+  nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 48px;background:rgba(247,245,240,0.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+  .nav-logo{font-family:'DM Serif Display',serif;font-size:1.4rem;display:flex;align-items:center;gap:10px}
+  .dot{width:9px;height:9px;background:var(--accent);border-radius:50%;animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.5);opacity:.7}}
+  .nav-links{display:flex;gap:6px}
+  .nav-link{padding:8px 16px;border-radius:8px;font-size:0.82rem;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all 0.2s;font-family:'DM Sans',sans-serif}
+  .nav-link:hover,.nav-link.active{background:var(--ink);color:white}
+  .hero{max-width:1100px;margin:auto;padding:80px 48px 60px;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;animation:fadeUp 0.7s ease both}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+  .hero-label{display:inline-flex;align-items:center;gap:8px;font-size:0.75rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent2);margin-bottom:16px}
+  .hero-label span{width:24px;height:2px;background:var(--accent2)}
+  .hero h1{font-family:'DM Serif Display',serif;font-size:3.4rem;line-height:1.08;letter-spacing:-1px;margin-bottom:16px}
+  .hero h1 em{font-style:italic;color:var(--accent)}
+  .hero p{font-size:1rem;line-height:1.7;color:var(--muted);margin-bottom:28px}
+  .hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+  .btn{padding:12px 26px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.22s;border:none}
+  .btn-dark{background:var(--ink);color:white}
+  .btn-dark:hover{background:#1e2630;transform:translateY(-2px);box-shadow:var(--shadow)}
+  .btn-outline{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+  .btn-outline:hover{background:var(--ink);color:white}
+  .btn-green{background:var(--accent2);color:white}
+  .btn-green:hover{background:#1e4d35;transform:translateY(-2px)}
+  .btn-red{background:var(--danger);color:white;padding:6px 14px;font-size:0.78rem}
+  .btn-red:hover{background:#b91c1c}
+  .hero-visual{display:flex;flex-direction:column;gap:14px}
+  .stat-card{background:white;border-radius:12px;padding:20px 24px;border:1px solid var(--border);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between;transition:transform 0.2s}
+  .stat-card:hover{transform:translateX(5px)}
+  .stat-label{font-size:0.78rem;color:var(--muted);margin-bottom:3px}
+  .stat-value{font-family:'DM Serif Display',serif;font-size:1.9rem}
+  .stat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+  .ic-gold{background:#fef3c7}.ic-green{background:#d1fae5}.ic-blue{background:#dbeafe}
+  .section{max-width:1100px;margin:0 auto 60px;padding:0 48px}
+  .section-head{margin-bottom:28px}
+  .section-head h2{font-family:'DM Serif Display',serif;font-size:2rem;letter-spacing:-0.6px}
+  .section-head p{color:var(--muted);margin-top:6px;font-size:0.92rem}
+  hr.divider{max-width:1100px;margin:0 auto;border:none;border-top:1px solid var(--border)}
+  .panel{background:white;border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden}
+  .panel-head{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .panel-head h3{font-size:0.88rem;font-weight:600}
+  .badge{font-size:0.68rem;font-weight:600;padding:3px 10px;border-radius:20px;margin-left:auto}
+  .badge-green{background:#f0fdf4;color:#16a34a}.badge-blue{background:#eff6ff;color:#2563eb}.badge-orange{background:#fff7ed;color:#ea580c}
+  .panel-body{padding:24px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  .form-grid.single{grid-template-columns:1fr}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field label{font-size:0.75rem;font-weight:600;color:var(--muted);letter-spacing:0.4px;text-transform:uppercase}
+  .field input,.field textarea{padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.87rem;background:var(--paper);outline:none;transition:border-color 0.2s;color:var(--ink)}
+  .field input:focus,.field textarea:focus{border-color:var(--accent)}
+  .field textarea{resize:vertical;min-height:90px}
+  .submit-row{display:flex;align-items:center;gap:12px;margin-top:4px;flex-wrap:wrap}
+  .form-msg{font-size:0.82rem;font-weight:500;padding:8px 14px;border-radius:8px;display:none}
+  .form-msg.success{background:#f0fdf4;color:#16a34a;display:block}
+  .form-msg.error{background:#fef2f2;color:#dc2626;display:block}
+  .data-table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:0.83rem}
+  thead tr{background:var(--ink)}
+  thead th{padding:12px 14px;text-align:left;color:white;font-weight:600;font-size:0.78rem;letter-spacing:0.4px;text-transform:uppercase;white-space:nowrap}
+  tbody tr{border-bottom:1px solid var(--border);transition:background 0.15s}
+  tbody tr:hover{background:var(--paper)}
+  tbody td{padding:12px 14px;vertical-align:middle}
+  .tag{display:inline-block;padding:2px 10px;border-radius:20px;font-size:0.72rem;font-weight:600;background:var(--cream);color:var(--ink)}
+  .empty-row td{text-align:center;color:var(--muted);padding:32px;font-style:italic}
+  .workspace-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .agenda-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+  .agenda-item:last-child{border-bottom:none}
+  .agenda-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
+  .d-done{background:var(--accent2)}.d-now{background:var(--accent)}.d-next{background:var(--border);border:2px solid #ccc}
+  .agenda-title{font-size:0.86rem;font-weight:500}
+  .agenda-sub{font-size:0.73rem;color:var(--muted)}
+  .input-row{display:flex;gap:10px;margin-top:14px}
+  .input-row input{flex:1;padding:9px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.84rem;background:var(--paper);outline:none;transition:border-color 0.2s}
+  .input-row input:focus{border-color:var(--accent)}
+  .input-row button{padding:9px 16px;background:var(--ink);color:white;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer}
+  .action-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+  .action-item:last-child{border-bottom:none}
+  .chk{width:17px;height:17px;border-radius:4px;border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.6rem;flex-shrink:0;transition:all 0.2s}
+  .chk.done{background:var(--accent2);border-color:var(--accent2);color:white}
+  .act-text{font-size:0.84rem;flex:1}
+  .act-text.done-text{text-decoration:line-through;color:var(--muted)}
+  .ai-btn{margin-top:12px;width:100%;padding:11px;background:linear-gradient(135deg,#0d1117,#2d3748);color:white;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.84rem;font-weight:600;cursor:pointer;transition:all 0.22s;display:flex;align-items:center;justify-content:center;gap:8px}
+  .ai-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+  .spinner{display:none;width:13px;height:13px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .ai-result{margin-top:12px;background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1px solid #bbf7d0;border-radius:10px;padding:14px;font-size:0.82rem;line-height:1.65;color:#166534;display:none;animation:fadeUp 0.4s ease}
+  .ai-result.show{display:block}
+  .ai-result strong{font-weight:600;display:block;margin-bottom:5px;font-size:0.75rem;letter-spacing:0.5px;text-transform:uppercase}
+  .notes-area{width:100%;min-height:120px;border:1.5px solid var(--border);border-radius:8px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:0.84rem;line-height:1.6;background:var(--paper);resize:vertical;outline:none;transition:border-color 0.2s}
+  .notes-area:focus{border-color:var(--accent)}
+  .timer-bar{background:white;border:1px solid var(--border);border-radius:14px;padding:18px 24px;display:flex;align-items:center;gap:20px;margin-bottom:20px;box-shadow:var(--shadow);flex-wrap:wrap}
+  .timer-display{font-family:'DM Serif Display',serif;font-size:2.4rem;letter-spacing:-1px;min-width:110px}
+  .timer-btns{display:flex;gap:8px}
+  .tbtn{padding:7px 16px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--paper);color:var(--ink);transition:all 0.2s}
+  .tbtn:hover,.tbtn.active{background:var(--ink);color:white;border-color:var(--ink)}
+  .timer-lbl{font-size:0.75rem;color:var(--muted)}
+  .timer-lbl strong{display:block;font-size:0.85rem;color:var(--ink);margin-bottom:1px}
+  .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .feat-card{background:white;border:1px solid var(--border);border-radius:14px;padding:24px;box-shadow:var(--shadow);transition:all 0.22s;position:relative;overflow:hidden}
+  .feat-card::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:3px;transform:scaleX(0);transform-origin:left;transition:transform 0.3s}
+  .feat-card:nth-child(1)::after{background:var(--accent)}
+  .feat-card:nth-child(2)::after{background:var(--accent2)}
+  .feat-card:nth-child(3)::after{background:#6366f1}
+  .feat-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
+  .feat-card:hover::after{transform:scaleX(1)}
+  .feat-icon{font-size:1.7rem;margin-bottom:12px}
+  .feat-card h3{font-size:0.95rem;font-weight:600;margin-bottom:7px}
+  .feat-card p{font-size:0.81rem;color:var(--muted);line-height:1.6}
+  footer{border-top:1px solid var(--border);padding:28px 48px;display:flex;align-items:center;justify-content:space-between;max-width:1100px;margin:0 auto}
+  .footer-brand{font-family:'DM Serif Display',serif;font-size:1.1rem}
+  .footer-meta{font-size:0.78rem;color:var(--muted)}
+  .toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:white;padding:12px 20px;border-radius:10px;font-size:0.83rem;font-weight:500;box-shadow:var(--shadow-lg);transform:translateY(80px);opacity:0;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);z-index:999}
+  .toast.show{transform:translateY(0);opacity:1}
+  .page-section{display:none}
+  .page-section.active{display:block}
+  @media(max-width:768px){
+    nav{padding:12px 18px}.nav-links{gap:3px}
+    .nav-link{padding:6px 10px;font-size:0.75rem}
+    .hero{grid-template-columns:1fr;padding:50px 18px 36px;gap:28px}.hero h1{font-size:2.4rem}
+    .workspace-grid,.form-grid,.features-grid{grid-template-columns:1fr}
+    .section{padding:0 18px}footer{padding:20px 18px;flex-direction:column;gap:8px;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo"><div class="dot"></div>MeetMind</div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="showPage('home',this)">Home</button>
+    <button class="nav-link" onclick="showPage('workspace',this)">Workspace</button>
+    <button class="nav-link" onclick="showPage('employees',this)">Team</button>
+    <button class="nav-link" onclick="showPage('meetings',this)">Meetings DB</button>
+  </div>
+  <span style="font-size:0.76rem;color:var(--muted);font-weight:500;">by Shantanu · AWS EC2</span>
+</nav>
+
+<!-- ══ HOME ══════════════════════════════════════════ -->
+<div id="page-home" class="page-section active">
+  <section class="hero">
+    <div>
+      <div class="hero-label"><span></span>Full-Stack Corporate Tool</div>
+      <h1>Your <em>intelligent</em> meeting companion</h1>
+      <p>Run sharp agendas, manage your team, save meeting notes — all backed by a real MySQL database on AWS EC2 with Docker.</p>
+      <div class="hero-btns">
+        <button class="btn btn-dark" onclick="showPage('workspace',null)">Open Workspace</button>
+        <button class="btn btn-outline" onclick="showPage('employees',null)">Manage Team</button>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="stat-card"><div><div class="stat-label">Team Members (MySQL)</div><div class="stat-value" id="stat-employees">—</div></div><div class="stat-icon ic-gold">👥</div></div>
+      <div class="stat-card"><div><div class="stat-label">Meetings Saved (MySQL)</div><div class="stat-value" id="stat-meetings">—</div></div><div class="stat-icon ic-green">📋</div></div>
+      <div class="stat-card"><div><div class="stat-label">Stack</div><div class="stat-value" style="font-size:1rem;line-height:1.5">Flask · MySQL · Docker · EC2</div></div><div class="stat-icon ic-blue">🚀</div></div>
+    </div>
+  </section>
+  <hr class="divider">
+  <div class="section" style="margin-top:50px;">
+    <div class="features-grid">
+      <div class="feat-card"><div class="feat-icon">🗄️</div><h3>MySQL Database</h3><p>Team members and meetings are stored in a real MySQL database running in Docker on AWS EC2.</p></div>
+      <div class="feat-card"><div class="feat-icon">🧠</div><h3>AI Summaries</h3><p>Paste raw notes, get structured summaries with key decisions and action items — powered by Claude AI.</p></div>
+      <div class="feat-card"><div class="feat-icon">⚡</div><h3>Live Workspace</h3><p>Real-time agenda timer, action item tracker, and one-click export for every meeting you run.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ WORKSPACE ══════════════════════════════════════ -->
+<div id="page-workspace" class="page-section">
+  <div class="section" style="padding-top:40px;">
+    <div class="section-head"><h2>Meeting Workspace</h2><p>Run your meeting live — then save notes to the MySQL database</p></div>
+    <div class="timer-bar">
+      <div><div class="timer-lbl"><strong>Meeting Timer</strong>Track time per agenda item</div></div>
+      <div class="timer-display" id="timer-display">00:00</div>
+      <div class="timer-btns">
+        <button class="tbtn" id="tbtn-start" onclick="startTimer()">▶ Start</button>
+        <button class="tbtn" onclick="pauseTimer()">⏸ Pause</button>
+        <button class="tbtn" onclick="resetTimer()">↺ Reset</button>
+      </div>
+    </div>
+    <div class="workspace-grid">
+      <div style="display:flex;flex-direction:column;gap:18px;">
+        <div class="panel">
+          <div class="panel-head"><span>📋</span><h3>Agenda</h3><span class="badge badge-orange">● LIVE</span></div>
+          <div class="panel-body">
+            <div id="agenda-list">
+              <div class="agenda-item"><div class="agenda-dot d-done"></div><div><div class="agenda-title">Opening &amp; Attendance</div><div class="agenda-sub">Done · 5 min</div></div></div>
+              <div class="agenda-item"><div class="agenda-dot d-now"></div><div><div class="agenda-title">Q3 Review — Revenue &amp; Metrics</div><div class="agenda-sub">In progress · 20 min</div></div></div>
+              <div class="agenda-item"><div class="agenda-dot d-next"></div><div><div class="agenda-title">Product Roadmap Discussion</div><div class="agenda-sub">Up next · 15 min</div></div></div>
+            </div>
+            <div class="input-row">
+              <input type="text" id="agenda-input" placeholder="Add agenda item...">
+              <button onclick="addAgendaItem()">Add</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><span>✅</span><h3>Action Items</h3><span class="badge badge-blue">Tasks</span></div>
+          <div class="panel-body">
+            <div id="action-list">
+              <div class="action-item"><div class="chk done" onclick="toggleChk(this)">✓</div><div class="act-text done-text">Send Q2 report to stakeholders</div></div>
+              <div class="action-item"><div class="chk" onclick="toggleChk(this)"></div><div class="act-text">Schedule follow-up with design team</div></div>
+              <div class="action-item"><div class="chk" onclick="toggleChk(this)"></div><div class="act-text">Prepare Q4 budget proposal</div></div>
+            </div>
+            <div class="input-row">
+              <input type="text" id="action-input" placeholder="New action item...">
+              <button onclick="addActionItem()">Add</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><span>🧠</span><h3>Notes + AI + Save to DB</h3><span class="badge badge-green">✦ AI + MySQL</span></div>
+        <div class="panel-body">
+          <div class="field" style="margin-bottom:12px;">
+            <label>Meeting Title *</label>
+            <input type="text" id="meeting-title" placeholder="e.g. Q3 Review — Engineering Team">
+          </div>
+          <div class="field" style="margin-bottom:10px;">
+            <label>Raw Meeting Notes</label>
+            <textarea class="notes-area" id="meeting-notes" placeholder="Type your raw notes here... the AI will structure them for you."></textarea>
+          </div>
+          <button class="ai-btn" id="ai-btn" onclick="summarizeMeeting()">
+            <span class="spinner" id="ai-spinner"></span>
+            <span id="ai-btn-text">✦ Generate AI Summary</span>
+          </button>
+          <div class="ai-result" id="ai-result"></div>
+          <div style="display:flex;gap:10px;margin-top:12px;">
+            <button class="btn btn-green" style="flex:1;padding:11px;" onclick="saveMeetingToDB()">💾 Save to MySQL</button>
+            <button class="btn btn-outline" style="flex:1;padding:11px;" onclick="exportSummary()">↓ Export .txt</button>
+          </div>
+          <div class="form-msg" id="meeting-save-msg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TEAM / EMPLOYEES ═══════════════════════════════ -->
+<div id="page-employees" class="page-section">
+  <div class="section" style="padding-top:40px;">
+    <div class="section-head"><h2>Team Members</h2><p>Add employees — data is stored directly in MySQL on your EC2 server</p></div>
+    <div style="display:grid;grid-template-columns:1fr 1.6fr;gap:24px;align-items:start;">
+      <div class="panel">
+        <div class="panel-head"><span>➕</span><h3>Add Team Member</h3><span class="badge badge-blue">→ MySQL</span></div>
+        <div class="panel-body">
+          <div class="form-grid">
+            <div class="field"><label>Full Name</label><input type="text" id="emp-name" placeholder="Shantanu Sambhare"></div>
+            <div class="field"><label>Role / Title</label><input type="text" id="emp-role" placeholder="DevOps Engineer"></div>
+          </div>
+          <div class="form-grid">
+            <div class="field"><label>Department</label><input type="text" id="emp-dept" placeholder="Engineering"></div>
+            <div class="field"><label>Email</label><input type="email" id="emp-email" placeholder="shantanu@company.com"></div>
+          </div>
+          <div class="form-grid single">
+            <div class="field"><label>Note</label><textarea id="emp-note" placeholder="Any note about this person..."></textarea></div>
+          </div>
+          <div class="submit-row">
+            <button class="btn btn-dark" onclick="addEmployee()" style="padding:11px 24px;">💾 Save to MySQL</button>
+            <div class="form-msg" id="emp-msg"></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <span>👥</span><h3>All Team Members</h3>
+          <span class="badge badge-green">Live from MySQL</span>
+          <button class="btn btn-outline" style="padding:5px 14px;font-size:0.78rem;" onclick="loadEmployees()">↻ Refresh</button>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <div class="data-table-wrap">
+            <table>
+              <thead><tr><th>Name</th><th>Role</th><th>Department</th><th>Email</th><th></th></tr></thead>
+              <tbody id="emp-tbody"><tr class="empty-row"><td colspan="5">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MEETINGS DB ════════════════════════════════════ -->
+<div id="page-meetings" class="page-section">
+  <div class="section" style="padding-top:40px;">
+    <div class="section-head"><h2>Saved Meetings</h2><p>All meetings saved from the Workspace — live from MySQL</p></div>
+    <div class="panel">
+      <div class="panel-head">
+        <span>📋</span><h3>Meeting History</h3>
+        <span class="badge badge-green">Live from MySQL</span>
+        <button class="btn btn-outline" style="padding:5px 14px;font-size:0.78rem;" onclick="loadMeetings()">↻ Refresh</button>
+      </div>
+      <div class="panel-body" style="padding:0;">
+        <div class="data-table-wrap">
+          <table>
+            <thead><tr><th>Title</th><th>Notes</th><th>Action Items</th><th>Saved At</th></tr></thead>
+            <tbody id="mtg-tbody"><tr class="empty-row"><td colspan="4">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-brand">MeetMind</div>
+  <div class="footer-meta">Built by <strong>Shantanu Sambhare</strong> · Flask · MySQL · Docker · AWS EC2</div>
+</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── NAVIGATION ────────────────────────────────────────
+function showPage(name, btn) {
+  document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(name==='employees') loadEmployees();
+  if(name==='meetings') loadMeetings();
+  if(name==='home') loadStats();
+}
+
+// ── TIMER ─────────────────────────────────────────────
+let tInterval=null,tSec=0,tRunning=false;
+function updateTimer(){const m=String(Math.floor(tSec/60)).padStart(2,'0'),s=String(tSec%60).padStart(2,'0');document.getElementById('timer-display').textContent=m+':'+s;}
+function startTimer(){if(tRunning)return;tRunning=true;document.getElementById('tbtn-start').classList.add('active');tInterval=setInterval(()=>{tSec++;updateTimer();},1000);}
+function pauseTimer(){tRunning=false;document.getElementById('tbtn-start').classList.remove('active');clearInterval(tInterval);}
+function resetTimer(){pauseTimer();tSec=0;updateTimer();}
+
+// ── AGENDA ────────────────────────────────────────────
+function addAgendaItem(){
+  const inp=document.getElementById('agenda-input'),val=inp.value.trim();if(!val)return;
+  const d=document.createElement('div');d.className='agenda-item';
+  d.innerHTML=`<div class="agenda-dot d-next"></div><div><div class="agenda-title">${val}</div><div class="agenda-sub">Pending</div></div>`;
+  document.getElementById('agenda-list').appendChild(d);inp.value='';showToast('📋 Added');
+}
+document.getElementById('agenda-input').addEventListener('keydown',e=>{if(e.key==='Enter')addAgendaItem();});
+
+// ── ACTION ITEMS ──────────────────────────────────────
+function toggleChk(el){const t=el.nextElementSibling;el.classList.toggle('done');t.classList.toggle('done-text');el.textContent=el.classList.contains('done')?'✓':'';}
+function addActionItem(){
+  const inp=document.getElementById('action-input'),val=inp.value.trim();if(!val)return;
+  const d=document.createElement('div');d.className='action-item';
+  d.innerHTML=`<div class="chk" onclick="toggleChk(this)"></div><div class="act-text">${val}</div>`;
+  document.getElementById('action-list').appendChild(d);inp.value='';showToast('✅ Added');
+}
+document.getElementById('action-input').addEventListener('keydown',e=>{if(e.key==='Enter')addActionItem();});
+
+// ── AI SUMMARY ────────────────────────────────────────
+async function summarizeMeeting(){
+  const notes=document.getElementById('meeting-notes').value.trim();
+  if(!notes){showToast('⚠️ Add some notes first');return;}
+  const btn=document.getElementById('ai-btn'),sp=document.getElementById('ai-spinner'),bt=document.getElementById('ai-btn-text'),rd=document.getElementById('ai-result');
+  btn.style.opacity='0.7';sp.style.display='inline-block';bt.textContent='Generating...';rd.classList.remove('show');
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,
+        messages:[{role:"user",content:`You are a meeting assistant. Summarize these notes:\n\n📌 KEY DECISIONS\n💬 HIGHLIGHTS\n✅ ACTION ITEMS (• [Owner] → [Task])\n⚡ FOLLOW-UP NEEDED\n\nUnder 200 words.\n\nNotes:\n${notes}`}]})});
+    const data=await res.json();
+    const summary=data.content.map(i=>i.text||'').join('\n');
+    rd.innerHTML=`<strong>✦ AI Summary</strong>${summary.replace(/\n/g,'<br>')}`;
+    rd.classList.add('show');showToast('✦ Summary ready!');
+  }catch(e){rd.innerHTML=`<strong>⚠️ Error</strong>Could not reach AI.`;rd.classList.add('show');}
+  btn.style.opacity='1';sp.style.display='none';bt.textContent='✦ Generate AI Summary';
+}
+
+// ── SAVE MEETING ──────────────────────────────────────
+async function saveMeetingToDB(){
+  const title=document.getElementById('meeting-title').value.trim();
+  const notes=document.getElementById('meeting-notes').value.trim();
+  const aiText=document.getElementById('ai-result').innerText||'';
+  const actions=[...document.querySelectorAll('.act-text')].map(e=>e.textContent).join(', ');
+  const msg=document.getElementById('meeting-save-msg');
+  if(!title){showMsg(msg,'error','⚠️ Please enter a meeting title');return;}
+  try{
+    const res=await fetch('/add_meeting',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({title,notes,action_items:actions||aiText.slice(0,500)})});
+    const data=await res.json();
+    if(data.success){showMsg(msg,'success','✅ Saved to MySQL!');showToast('💾 Meeting saved to database!');loadStats();}
+    else showMsg(msg,'error','❌ '+data.message);
+  }catch(e){showMsg(msg,'error','❌ Cannot connect to Flask server');}
+}
+
+// ── EXPORT ────────────────────────────────────────────
+function exportSummary(){
+  const notes=document.getElementById('meeting-notes').value;
+  const summary=document.getElementById('ai-result').innerText;
+  const actions=[...document.querySelectorAll('.act-text')].map(e=>'• '+e.textContent).join('\n');
+  const blob=new Blob([`MEETMIND EXPORT\nby Shantanu Sambhare\n${'='.repeat(40)}\n\nNOTES\n${notes}\n\nACTION ITEMS\n${actions}\n\n${summary}`],{type:'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='meeting-summary.txt';a.click();
+  showToast('📄 Exported!');
+}
+
+// ── EMPLOYEES ─────────────────────────────────────────
+async function addEmployee(){
+  const name=document.getElementById('emp-name').value.trim();
+  const role=document.getElementById('emp-role').value.trim();
+  const department=document.getElementById('emp-dept').value.trim();
+  const email=document.getElementById('emp-email').value.trim();
+  const message=document.getElementById('emp-note').value.trim();
+  const msg=document.getElementById('emp-msg');
+  if(!name||!role||!department||!email){showMsg(msg,'error','⚠️ All fields are required');return;}
+  try{
+    const res=await fetch('/add_employee',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name,role,department,email,message})});
+    const data=await res.json();
+    if(data.success){
+      showMsg(msg,'success','✅ Saved to MySQL!');
+      showToast('👤 '+name+' added!');
+      ['emp-name','emp-role','emp-dept','emp-email','emp-note'].forEach(id=>document.getElementById(id).value='');
+      loadEmployees();loadStats();
+    }else showMsg(msg,'error','❌ '+data.message);
+  }catch(e){showMsg(msg,'error','❌ Cannot connect to server. Is Flask running?');}
+}
+
+async function loadEmployees(){
+  const tb=document.getElementById('emp-tbody');
+  tb.innerHTML='<tr class="empty-row"><td colspan="5">Loading from MySQL...</td></tr>';
+  try{
+    const res=await fetch('/get_employees');const data=await res.json();
+    if(!data.success||!data.data.length){tb.innerHTML='<tr class="empty-row"><td colspan="5">No team members yet — add one!</td></tr>';return;}
+    tb.innerHTML=data.data.map(e=>`<tr>
+      <td><strong>${e.name}</strong></td>
+      <td><span class="tag">${e.role}</span></td>
+      <td>${e.department}</td>
+      <td style="font-size:0.8rem;color:var(--muted)">${e.email}</td>
+      <td><button class="btn btn-red" onclick="deleteEmployee(${e.id})">Delete</button></td>
+    </tr>`).join('');
+  }catch(e){tb.innerHTML='<tr class="empty-row"><td colspan="5">⚠️ Cannot reach server</td></tr>';}
+}
+
+async function deleteEmployee(id){
+  if(!confirm('Delete this employee from database?'))return;
+  try{
+    const res=await fetch('/delete_employee/'+id,{method:'DELETE'});
+    const data=await res.json();
+    if(data.success){showToast('🗑️ Deleted');loadEmployees();loadStats();}
+  }catch(e){showToast('❌ Delete failed');}
+}
+
+// ── MEETINGS TABLE ────────────────────────────────────
+async function loadMeetings(){
+  const tb=document.getElementById('mtg-tbody');
+  tb.innerHTML='<tr class="empty-row"><td colspan="4">Loading from MySQL...</td></tr>';
+  try{
+    const res=await fetch('/get_meetings');const data=await res.json();
+    if(!data.success||!data.data.length){tb.innerHTML='<tr class="empty-row"><td colspan="4">No meetings saved yet. Use the Workspace tab!</td></tr>';return;}
+    tb.innerHTML=data.data.map(m=>`<tr>
+      <td><strong>${m.title}</strong></td>
+      <td style="font-size:0.8rem;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.notes||'—'}</td>
+      <td style="font-size:0.8rem;color:var(--muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.action_items||'—'}</td>
+      <td style="font-size:0.78rem;color:var(--muted);white-space:nowrap">${m.created_at}</td>
+    </tr>`).join('');
+  }catch(e){tb.innerHTML='<tr class="empty-row"><td colspan="4">⚠️ Cannot reach server</td></tr>';}
+}
+
+// ── STATS ─────────────────────────────────────────────
+async function loadStats(){
+  try{
+    const[e,m]=await Promise.all([fetch('/get_employees').then(r=>r.json()),fetch('/get_meetings').then(r=>r.json())]);
+    document.getElementById('stat-employees').textContent=e.data?.length??'—';
+    document.getElementById('stat-meetings').textContent=m.data?.length??'—';
+  }catch(_){}
+}
+
+// ── UTILS ─────────────────────────────────────────────
+function showMsg(el,type,msg){el.className='form-msg '+type;el.textContent=msg;setTimeout(()=>el.className='form-msg',4000);}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+
+window.onload=()=>loadStats();
+</script>
+</body>
+</html>
