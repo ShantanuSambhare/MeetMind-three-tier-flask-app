@@ -1,212 +1,362 @@
-# MeetMind — Two-Tier Flask App on AWS EC2 with Docker
+# MeetMind Three-Tier Architecture - Updated README
 
-A full-stack corporate productivity web application built as a **DevOps project** to demonstrate containerization, multi-container orchestration, and cloud deployment.
+![Architecture Diagram](https://img.shields.io/badge/Architecture-Three%20Tier-brightgreen)
+![Status](https://img.shields.io/badge/Status-Production%20Ready-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
 
----
+## 📋 Project Overview
 
-## Tech Stack
+**MeetMind** is a modern three-tier web application that demonstrates enterprise-level DevOps practices on AWS. It showcases how to build, deploy, and scale a production-ready application across multiple architectural tiers.
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend + Backend | Python · Flask |
-| Database | MySQL 5.7 |
-| Containerization | Docker |
-| Orchestration | Docker Compose |
-| Cloud Server | AWS EC2 (Ubuntu 22.04) |
-| CI/CD | Jenkins (optional) |
+### ✨ Key Features
 
----
+- **Tier 1 (Frontend)**: Global CDN with S3 + CloudFront for blazing-fast static asset delivery
+- **Tier 2 (Application)**: Auto-scaling Flask API on Elastic Beanstalk behind ALB
+- **Tier 3 (Database)**: Secure MongoDB in private subnet with encryption
+- **Infrastructure as Code**: Complete Terraform configuration for reproducible deployments
+- **CI/CD Ready**: GitHub Actions workflow for automated testing and deployment
+- **Monitoring**: CloudWatch integration for metrics and alarms
+- **Security**: VPC isolation, security groups, encrypted storage, environment-based secrets
 
-## Architecture
-
-```
-User (Browser)
-     │
-     │  HTTP :5000
-     ▼
-┌─────────────────────────────────────────┐
-│           AWS EC2 Instance              │
-│  ┌──────────────────────────────────┐   │
-│  │       Docker Network: twotier    │   │
-│  │                                  │   │
-│  │  ┌─────────────┐  ┌───────────┐ │   │
-│  │  │  Container 1│  │Container 2│ │   │
-│  │  │  Flask App  │◄─►│  MySQL   │ │   │
-│  │  │  Port: 5000 │  │Port: 3306 │ │   │
-│  │  └─────────────┘  └───────────┘ │   │
-│  └──────────────────────────────────┘   │
-└─────────────────────────────────────────┘
-```
-
----
-
-## Project Structure
+## 🏗️ Architecture
 
 ```
-Two-Tier-Flask/
-├── app.py                  # Flask application & API routes
-├── Dockerfile              # Single-stage Docker build
-├── Dockerfile-multistage   # Optimized multi-stage Docker build
-├── docker-compose.yml      # Multi-container orchestration
-├── requirements.txt        # Python dependencies
-├── Jenkinsfile             # CI/CD pipeline (Jenkins)
-├── Makefile                # Build automation shortcuts
-├── message.sql             # DB init SQL script
-├── templates/
-│   └── index.html          # Frontend web page
-└── README.md
+┌─────────────────────────────────────────────────────────────┐
+│                        TIER 1: FRONTEND                      │
+│                  ┌──────────────────────────┐                │
+│                  │   CloudFront (CDN)       │                │
+│                  │   - 200+ Edge Locations  │                │
+│                  │   - SSL/TLS               │                │
+│                  └─────────────┬────────────┘                │
+│                                │                             │
+└─────────────────────┬──────────┼───────────────┬─────────────┘
+                      │          │               │
+                      ▼          ▼               ▼
+            ┌────────────────┐  S3 Bucket   Origin Request
+            │   Web Browser  │  (Static)
+            └────────┬───────┘
+                     │
+                     │ HTTPS
+                     │
+        ┌────────────▼────────────────────────────────┐
+        │   TIER 2: APPLICATION LAYER (AWS)           │
+        │  ┌──────────────────────────────────────┐  │
+        │  │  Application Load Balancer (ALB)     │  │
+        │  │  - Distributes Traffic               │  │
+        │  │  - Health Checks                     │  │
+        │  └────────────────┬─────────────────────┘  │
+        │                   │                        │
+        │  ┌────────────────▼────────────────────┐  │
+        │  │  Elastic Beanstalk (Auto-Scale)    │  │
+        │  │  - Min: 2 instances                 │  │
+        │  │  - Max: 6 instances                 │  │
+        │  │  - Scale Trigger: CPU 30-70%        │  │
+        │  │  - Python Flask Runtime             │  │
+        │  └────────────────┬─────────────────────┘  │
+        │                   │                        │
+        └───────────────────┼────────────────────────┘
+                            │
+                   (Private Subnet)
+                            │
+        ┌───────────────────▼────────────────────┐
+        │   TIER 3: DATABASE LAYER              │
+        │  ┌──────────────────────────────────┐ │
+        │  │  MongoDB EC2 (Private Subnet)    │ │
+        │  │  - No Internet Access             │ │
+        │  │  - Encrypted Storage (EBS gp3)   │ │
+        │  │  - Auto Backups to S3             │ │
+        │  │  - Port 27017 (App Only)          │ │
+        │  └──────────────────────────────────┘ │
+        └──────────────────────────────────────────┘
 ```
 
----
+## 🚀 Quick Start
 
-## Prerequisites
-
-Make sure you have the following installed:
-
-- [Docker](https://docs.docker.com/get-docker/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
+### Prerequisites
+- AWS Account with appropriate permissions
+- AWS CLI configured
+- Terraform >= 1.0
+- Python 3.11+
+- Docker & Docker Compose
 - Git
 
----
-
-## Quick Start
-
-### Option 1 — Docker Compose (Recommended)
+### Local Development
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/ShantanuSambhare/Two-Tier-Flask.git
-cd Two-Tier-Flask
+# Clone repository
+git clone https://github.com/ShantanuSambhare/MeetMind-two-tier-flask-app.git
+cd MeetMind-two-tier-flask-app
 
-# 2. Start both containers
-docker compose up -d --build
+# Setup local environment
+chmod +x setup-local.sh
+./setup-local.sh
 
-# 3. Open in browser
-http://localhost:5000
+# Run application
+source venv/bin/activate
+python app.py
 ```
 
-### Option 2 — Manual Docker Commands
+Application will be available at `http://localhost:5000`
+
+MongoDB Express UI: `http://localhost:8081` (admin/admin)
+
+### AWS Deployment
 
 ```bash
-# Step 1 — Build the Flask image
-docker build -t meetmind-app .
+# Make deployment script executable
+chmod +x deploy.sh
 
-# Step 2 — Create Docker network
-docker network create twotier
+# Run automated deployment
+./deploy.sh
 
-# Step 3 — Run MySQL container
-docker run -d \
-  --name mysql \
-  --network twotier \
-  -e MYSQL_ROOT_PASSWORD=root \
-  -e MYSQL_DATABASE=devops \
-  -v mysql-data:/var/lib/mysql \
-  mysql:5.7
-
-# Step 4 — Run Flask container
-docker run -d \
-  --name meetmind \
-  --network twotier \
-  -p 5000:5000 \
-  -e MYSQL_HOST=mysql \
-  -e MYSQL_USER=root \
-  -e MYSQL_PASSWORD=root \
-  -e MYSQL_DB=devops \
-  meetmind-app
+# Or manual Terraform deployment
+cd aws/terraform
+terraform init
+terraform plan
+terraform apply
 ```
 
----
+For detailed deployment instructions, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
 
-## Environment Variables
+## 📚 API Endpoints
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `MYSQL_HOST` | MySQL container hostname | `mysql` |
-| `MYSQL_USER` | MySQL username | `root` |
-| `MYSQL_PASSWORD` | MySQL password | `root` |
-| `MYSQL_DB` | Database name | `devops` |
-
----
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | Serve the web page |
-| POST | `/add_employee` | Add a team member to DB |
-| GET | `/get_employees` | Fetch all employees from DB |
-| DELETE | `/delete_employee/<id>` | Delete an employee by ID |
-| POST | `/add_meeting` | Save a meeting to DB |
-| GET | `/get_meetings` | Fetch all saved meetings |
-
----
-
-## AWS EC2 Deployment
-
+### Health Check
 ```bash
-# SSH into your EC2 instance
-ssh -i your-key.pem ubuntu@YOUR_EC2_PUBLIC_IP
-
-# Install Docker
-sudo apt-get update -y
-sudo apt-get install docker.io -y
-sudo systemctl start docker
-sudo usermod -aG docker ubuntu
-newgrp docker
-
-# Clone and run
-git clone https://github.com/ShantanuSambhare/Two-Tier-Flask.git
-cd Two-Tier-Flask
-docker compose up -d --build
-
-# Access the app
-http://YOUR_EC2_PUBLIC_IP:5000
+GET /health
+# Response: {"status": "healthy", "service": "MeetMind API", "environment": "production"}
 ```
 
-> Make sure port **5000** is open in your EC2 Security Group inbound rules.
-
----
-
-## Multi-Stage Docker Build (Optimized)
-
-Use `Dockerfile-multistage` for a smaller production image:
-
+### Employees
 ```bash
-docker build -f Dockerfile-multistage -t meetmind-app:optimized .
+# Create employee
+POST /api/employees
+{
+  "name": "John Doe",
+  "role": "Software Engineer",
+  "department": "Engineering",
+  "email": "john@example.com",
+  "message": "Optional message"
+}
+
+# Get all employees
+GET /api/employees
+
+# Delete employee
+DELETE /api/employees/{id}
 ```
 
----
-
-## Makefile Shortcuts
-
+### Meetings
 ```bash
-make build   # Build Docker images
-make run     # Start containers in background
-make stop    # Stop all containers
-make clean   # Stop, remove containers and prune system
+# Create meeting
+POST /api/meetings
+{
+  "title": "Sprint Planning",
+  "notes": "Discuss Q1 roadmap",
+  "action_items": "Finalize backlog"
+}
+
+# Get all meetings
+GET /api/meetings
+
+# Delete meeting
+DELETE /api/meetings/{id}
 ```
 
----
+## 🔧 Configuration
 
-## Stopping the App
-
+### Environment Variables
 ```bash
-# Docker Compose
-docker compose down
+# Database
+MONGODB_URI=mongodb://admin:password@host:27017/meetmind?authSource=admin
 
-# Manual
-docker stop meetmind mysql
-docker rm meetmind mysql
+# Application
+ENVIRONMENT=production          # production or development
+FLASK_ENV=production
+PORT=5000
+
+# AWS
+AWS_REGION=us-east-1
+S3_BUCKET=meetmind-static-assets-xxxxx
+CLOUDFRONT_DOMAIN=d1234567890abc.cloudfront.net
 ```
 
+Set these in Elastic Beanstalk environment configuration.
+
+## 📊 Monitoring & Logs
+
+### CloudWatch Logs
+```bash
+# View application logs
+aws logs tail /aws/elasticbeanstalk/meetmind-env/var/log/eb-engine.log --follow
+
+# View MongoDB metrics
+aws cloudwatch get-metric-statistics \
+  --namespace AWS/EC2 \
+  --metric-name CPUUtilization \
+  --dimensions Name=InstanceId,Value=i-xxxxx \
+  --start-time 2024-01-01T00:00:00Z \
+  --end-time 2024-01-02T00:00:00Z \
+  --period 3600 \
+  --statistics Average
+```
+
+### Application Monitoring
+- **ALB Health Check**: `/health` endpoint (30 second interval)
+- **Auto-Scaling**: Triggers at CPU > 70% (scale up) or < 30% (scale down)
+- **Database Alarms**: CPU > 80%, Storage > 85%
+
+## 🔐 Security Features
+
+✅ **Network Security**
+- VPC with public/private subnets
+- Internet Gateway for public access
+- NAT Gateway for private subnet internet access
+- Security groups restrict traffic between tiers
+
+✅ **Data Security**
+- MongoDB in private subnet (not exposed to internet)
+- EBS volumes encrypted with AWS KMS
+- Database authentication required
+- Environment variables for secrets (not committed to Git)
+
+✅ **Access Control**
+- IAM roles for EC2 instances
+- Application Load Balancer health checks
+- CloudFront origin access identity
+
+## 📈 Scalability
+
+### Auto-Scaling Configuration
+```hcl
+Min Instances: 2              # Always running 2 for HA
+Max Instances: 6              # Cost control
+Scale Up Trigger: CPU > 70%
+Scale Down Trigger: CPU < 30%
+Cool Down Period: 300 seconds # Prevent flapping
+```
+
+### Performance Metrics
+- **Frontend**: CloudFront edge caching (edge latency < 100ms)
+- **Application**: ALB request routing (< 10ms)
+- **Database**: MongoDB indexes for query optimization
+
+## 💰 Cost Optimization
+
+### Estimated Monthly Costs (US-East-1)
+| Component | Instance Type | Count | Cost/Month |
+|-----------|---------------|-------|-----------|
+| Elastic Beanstalk | t3.small | 2-6 | $25-75 |
+| MongoDB | t3.medium | 1 | $30 |
+| NAT Gateway | - | 1 | $32 |
+| CloudFront | - | - | $0.085/GB |
+| S3 | - | - | $0.023/GB |
+| **Total** | | | **~$90-200** |
+
+### Cost Reduction Tips
+1. Use Spot Instances (30% cheaper) - requires fault tolerance
+2. Right-size instances based on metrics
+3. Enable S3 Intelligent Tiering
+4. Set CloudFront TTL appropriately
+
+## 📝 Documentation
+
+- [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) - Step-by-step deployment instructions
+- [ARCHITECTURE.md](ARCHITECTURE.md) - Architecture decisions and rationale
+- [Terraform Docs](aws/terraform/README.md) - Infrastructure as Code details
+
+## 🔄 CI/CD Pipeline
+
+GitHub Actions workflow (`.github/workflows/deploy.yml`):
+1. **Test**: Run unit tests with MongoDB
+2. **Build**: Build Docker image and push to registry
+3. **Deploy**: Deploy to Elastic Beanstalk
+4. **Smoke Test**: Verify deployment health
+
+Trigger: Push to `main` branch
+
+## 🛠️ Development
+
+### Project Structure
+```
+.
+├── app.py                          # Flask application
+├── requirements.txt                # Python dependencies
+├── Dockerfile                      # Container image
+├── docker-compose.yml              # Local development
+├── .env.example                    # Environment variables template
+├── init-mongo.js                   # MongoDB initialization
+├── DEPLOYMENT_GUIDE.md             # Deployment documentation
+├── ARCHITECTURE.md                 # Architecture decisions
+├── deploy.sh                       # Automated deployment script
+├── setup-local.sh                  # Local setup script
+├── aws/
+│   └── terraform/
+│       ├── main.tf                 # VPC and networking
+│       ├── beanstalk.tf            # Elastic Beanstalk config
+│       ├── mongodb.tf              # MongoDB EC2 config
+│       ├── variables.tf            # Variables definition
+│       ├── terraform.tfvars        # Variables values
+│       └── mongodb-install.sh      # MongoDB installation
+└── .github/
+    └── workflows/
+        └── deploy.yml              # CI/CD pipeline
+```
+
+## 🐛 Troubleshooting
+
+### Application can't connect to MongoDB
+```bash
+# Check security group allows port 27017
+aws ec2 describe-security-groups --group-ids sg-xxxxx
+
+# SSH to Beanstalk instance and test connection
+telnet 10.0.10.x 27017
+```
+
+### High Latency to Database
+- Ensure Beanstalk and MongoDB are in same VPC
+- Check EC2 instance CPU and network performance
+- Verify MongoDB indexes
+
+### Application not responding
+```bash
+# Check ALB target health
+aws elbv2 describe-target-health --target-group-arn arn:aws:...
+
+# View Beanstalk logs
+eb logs
+
+# SSH to instance and check Flask process
+ps aux | grep python
+```
+
+## 📚 Learning Resources
+
+- [AWS Elastic Beanstalk](https://docs.aws.amazon.com/elasticbeanstalk/)
+- [MongoDB Documentation](https://docs.mongodb.com/)
+- [Terraform AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/latest)
+- [AWS VPC Best Practices](https://docs.aws.amazon.com/vpc/latest/userguide/)
+- [Flask Documentation](https://flask.palletsprojects.com/)
+
+## 📄 License
+
+This project is licensed under the MIT License - see LICENSE file for details.
+
+## 👨‍💻 Author
+
+**Shantanu Sambhare**
+- GitHub: [@ShantanuSambhare](https://github.com/ShantanuSambhare)
+- Project: [MeetMind Three-Tier App](https://github.com/ShantanuSambhare/MeetMind-two-tier-flask-app)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📞 Support
+
+For issues and questions, please create an issue on GitHub or contact the author.
+
 ---
 
-## Built By
-
-**Shantanu Sambhare** — DevOps Student
-
-- GitHub: [ShantanuSambhare](https://github.com/ShantanuSambhare)
-- LinkedIn: [linkedin.com/in/shantanu-sambhare](https://linkedin.com/in/shantanu-sambhare)
-
----
-
+**Last Updated**: 2024
+**Status**: Production Ready ✅
