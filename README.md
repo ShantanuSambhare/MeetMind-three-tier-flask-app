@@ -4,11 +4,11 @@
 ![Status](https://img.shields.io/badge/Status-Production%20Ready-blue)
 
 
-## 📋 Project Overview
+##  Project Overview
 
 **MeetMind** is a modern three-tier web application that demonstrates enterprise-level DevOps practices on AWS. It showcases how to build, deploy, and scale a production-ready application across multiple architectural tiers.
 
-### ✨ Key Features
+###  Key Features
 
 - **Tier 1 (Frontend)**: Global CDN with S3 + CloudFront for blazing-fast static asset delivery
 - **Tier 2 (Application)**: Auto-scaling Flask API on Elastic Beanstalk behind ALB
@@ -18,18 +18,18 @@
 - **Monitoring**: CloudWatch integration for metrics and alarms
 - **Security**: VPC isolation, security groups, encrypted storage, environment-based secrets
 
-## 🏗️ Architecture
+##  Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        TIER 1: FRONTEND                      │
-│                  ┌──────────────────────────┐                │
-│                  │   CloudFront (CDN)       │                │
-│                  │   - 200+ Edge Locations  │                │
-│                  │   - SSL/TLS               │                │
-│                  └─────────────┬────────────┘                │
-│                                │                             │
-└─────────────────────┬──────────┼───────────────┬─────────────┘
+│                        TIER 1: FRONTEND                     │
+│                  ┌──────────────────────────┐               │
+│                  │   CloudFront (CDN)       │               │
+│                  │   - 200+ Edge Locations  │               │
+│                  │   - SSL/TLS               │              │
+│                  └─────────────┬────────────┘               │
+│                                │                            │
+└─────────────────────┬──────────┼───────────────┬────────────┘
                       │          │               │
                       ▼          ▼               ▼
             ┌────────────────┐  S3 Bucket   Origin Request
@@ -40,37 +40,37 @@
                      │
         ┌────────────▼────────────────────────────────┐
         │   TIER 2: APPLICATION LAYER (AWS)           │
-        │  ┌──────────────────────────────────────┐  │
-        │  │  Application Load Balancer (ALB)     │  │
-        │  │  - Distributes Traffic               │  │
-        │  │  - Health Checks                     │  │
-        │  └────────────────┬─────────────────────┘  │
-        │                   │                        │
-        │  ┌────────────────▼────────────────────┐  │
-        │  │  Elastic Beanstalk (Auto-Scale)    │  │
-        │  │  - Min: 2 instances                 │  │
-        │  │  - Max: 6 instances                 │  │
-        │  │  - Scale Trigger: CPU 30-70%        │  │
-        │  │  - Python Flask Runtime             │  │
-        │  └────────────────┬─────────────────────┘  │
-        │                   │                        │
-        └───────────────────┼────────────────────────┘
+        │  ┌──────────────────────────────────────┐   │
+        │  │  Application Load Balancer (ALB)     │   │
+        │  │  - Distributes Traffic               │   │
+        │  │  - Health Checks                     │   │
+        │  └────────────────┬─────────────────────┘   │
+        │                   │                         │
+        │  ┌────────────────▼────────────────────┐    │
+        │  │  Elastic Beanstalk (Auto-Scale)     │    │
+        │  │  - Min: 2 instances                 │    │
+        │  │  - Max: 6 instances                 │    │
+        │  │  - Scale Trigger: CPU 30-70%        │    │
+        │  │  - Python Flask Runtime             │    │
+        │  └────────────────┬────────────────────┘    │
+        │                   │                         │
+        └───────────────────┼─────────────────────────┘
                             │
                    (Private Subnet)
                             │
         ┌───────────────────▼────────────────────┐
-        │   TIER 3: DATABASE LAYER              │
-        │  ┌──────────────────────────────────┐ │
-        │  │  MongoDB EC2 (Private Subnet)    │ │
-        │  │  - No Internet Access             │ │
-        │  │  - Encrypted Storage (EBS gp3)   │ │
-        │  │  - Auto Backups to S3             │ │
-        │  │  - Port 27017 (App Only)          │ │
-        │  └──────────────────────────────────┘ │
-        └──────────────────────────────────────────┘
+        │   TIER 3: DATABASE LAYER               │
+        │  ┌──────────────────────────────────┐  │
+        │  │  MongoDB EC2 (Private Subnet)    │  │
+        │  │  - No Internet Access            │  │
+        │  │  - Encrypted Storage (EBS gp3)   │  │
+        │  │  - Auto Backups to S3            │  │
+        │  │  - Port 27017 (App Only)         │  │
+        │  └──────────────────────────────────┘  │
+        └────────────────────────────────────────┘
 ```
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 - AWS Account with appropriate permissions
@@ -118,7 +118,7 @@ terraform apply
 
 For detailed deployment instructions, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
 
-## 📚 API Endpoints
+##  API Endpoints
 
 ### Health Check
 ```bash
@@ -162,7 +162,7 @@ GET /api/meetings
 DELETE /api/meetings/{id}
 ```
 
-## 🔧 Configuration
+##  Configuration
 
 ### Environment Variables
 ```bash
@@ -182,7 +182,7 @@ CLOUDFRONT_DOMAIN=d1234567890abc.cloudfront.net
 
 Set these in Elastic Beanstalk environment configuration.
 
-## 📊 Monitoring & Logs
+##  Monitoring & Logs
 
 ### CloudWatch Logs
 ```bash
@@ -205,26 +205,26 @@ aws cloudwatch get-metric-statistics \
 - **Auto-Scaling**: Triggers at CPU > 70% (scale up) or < 30% (scale down)
 - **Database Alarms**: CPU > 80%, Storage > 85%
 
-## 🔐 Security Features
+##  Security Features
 
-✅ **Network Security**
+ **Network Security**
 - VPC with public/private subnets
 - Internet Gateway for public access
 - NAT Gateway for private subnet internet access
 - Security groups restrict traffic between tiers
 
-✅ **Data Security**
+ **Data Security**
 - MongoDB in private subnet (not exposed to internet)
 - EBS volumes encrypted with AWS KMS
 - Database authentication required
 - Environment variables for secrets (not committed to Git)
 
-✅ **Access Control**
+ **Access Control**
 - IAM roles for EC2 instances
 - Application Load Balancer health checks
 - CloudFront origin access identity
 
-## 📈 Scalability
+##  Scalability
 
 ### Auto-Scaling Configuration
 ```hcl
@@ -240,7 +240,7 @@ Cool Down Period: 300 seconds # Prevent flapping
 - **Application**: ALB request routing (< 10ms)
 - **Database**: MongoDB indexes for query optimization
 
-## 💰 Cost Optimization
+##  Cost Optimization
 
 ### Estimated Monthly Costs (US-East-1)
 | Component | Instance Type | Count | Cost/Month |
@@ -258,13 +258,13 @@ Cool Down Period: 300 seconds # Prevent flapping
 3. Enable S3 Intelligent Tiering
 4. Set CloudFront TTL appropriately
 
-## 📝 Documentation
+##  Documentation
 
 - [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) - Step-by-step deployment instructions
 - [ARCHITECTURE.md](ARCHITECTURE.md) - Architecture decisions and rationale
 - [Terraform Docs](aws/terraform/README.md) - Infrastructure as Code details
 
-## 🔄 CI/CD Pipeline
+##  CI/CD Pipeline
 
 GitHub Actions workflow (`.github/workflows/deploy.yml`):
 1. **Test**: Run unit tests with MongoDB
@@ -274,7 +274,7 @@ GitHub Actions workflow (`.github/workflows/deploy.yml`):
 
 Trigger: Push to `main` branch
 
-## 🛠️ Development
+##  Development
 
 ### Project Structure
 ```
@@ -302,7 +302,7 @@ Trigger: Push to `main` branch
         └── deploy.yml              # CI/CD pipeline
 ```
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Application can't connect to MongoDB
 ```bash
@@ -330,7 +330,7 @@ eb logs
 ps aux | grep python
 ```
 
-## 📚 Learning Resources
+##  Learning Resources
 
 - [AWS Elastic Beanstalk](https://docs.aws.amazon.com/elasticbeanstalk/)
 - [MongoDB Documentation](https://docs.mongodb.com/)
@@ -338,21 +338,21 @@ ps aux | grep python
 - [AWS VPC Best Practices](https://docs.aws.amazon.com/vpc/latest/userguide/)
 - [Flask Documentation](https://flask.palletsprojects.com/)
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License - see LICENSE file for details.
 
-## 👨‍💻 Author
+##  Author
 
 **Shantanu Sambhare**
 - GitHub: [@ShantanuSambhare](https://github.com/ShantanuSambhare)
 - Project: [MeetMind Three-Tier App](https://github.com/ShantanuSambhare/MeetMind-two-tier-flask-app)
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📞 Support
+##  Support
 
 For issues and questions, please create an issue on GitHub or contact the author.
 
